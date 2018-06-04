@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ServersService } from '../servers.service';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 
@@ -14,7 +14,8 @@ export class ServerComponent implements OnInit {
   paramSubscription:Subscription;
   
   constructor(private serversService: ServersService,
-              private route:ActivatedRoute) { }
+              private route:ActivatedRoute,
+              private router:Router) { }
 
   ngOnInit() {
     const id=+this.route.snapshot.params['id'];
@@ -27,5 +28,8 @@ export class ServerComponent implements OnInit {
   }
   ngOnDestroy(){
     this.paramSubscription.unsubscribe();
+  }
+  onEdit(){
+    this.router.navigate(['edit'],{relativeTo:this.route,queryParamsHandling:'preserve'});
   }
 }
