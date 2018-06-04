@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ServersService } from '../servers.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { CanComponentDeactive } from './can-deactive-guard-service';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 @Component({
   selector: 'edit-server',
@@ -15,7 +15,7 @@ export class EditServerComponent implements OnInit,CanComponentDeactive  {
   serverStatus = '';
   allowEdit=false;
   changesSaved=false;
-
+  paramSubscription:Subscription;
   constructor(private serversService: ServersService,
               private route:ActivatedRoute,
               private router:Router) { }
@@ -27,9 +27,20 @@ export class EditServerComponent implements OnInit,CanComponentDeactive  {
             this.allowEdit=queryParams['allowEdit']==='1'?true:false;
           }
         );
-    this.server = this.serversService.getServer(1);
+    this.server = this.serversService.getServer(+this.route.snapshot.params['id']);
+    //Subscribe to route params to update the ID if the params change.
+  
+    this.paramSubscription= this.route.params.subscribe(
+      (params:Params)=>{
+        this.server =this.serversService.getServer(+params['id']);
+      });     
+  
     this.serverName = this.server.name;
     this.serverStatus = this.server.status;
+  }
+  
+  ngOnDestroy(){
+    this.paramSubscription.unsubscribe();
   }
 
   onUpdateServer() {
